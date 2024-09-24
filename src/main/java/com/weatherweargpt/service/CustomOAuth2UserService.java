@@ -1,8 +1,6 @@
 package com.weatherweargpt.service;
 
-import com.weatherweargpt.dto.GoogleResponse;
-import com.weatherweargpt.dto.NaverResponse;
-import com.weatherweargpt.dto.OAuth2Response;
+import com.weatherweargpt.dto.*;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
