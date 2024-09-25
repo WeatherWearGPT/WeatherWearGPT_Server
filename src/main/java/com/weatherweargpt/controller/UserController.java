@@ -59,8 +59,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         if (!user.getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("본인의 마이 페이지만 수정할 수 있습니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("본인의 마이 페이지만 수정할 수 있습니다.");
         }
 
         long updatedUserId = userService.updateUser(user, joinDTO);

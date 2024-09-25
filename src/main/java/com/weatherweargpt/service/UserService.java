@@ -6,6 +6,7 @@ import com.weatherweargpt.entity.UserEntity;
 import com.weatherweargpt.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -61,29 +63,45 @@ public class UserService {
 
     public long updateUser(UserEntity user, JoinDTO joinDTO) {
         try {
-            if (!joinDTO.getPassword().isBlank()) {
-                user.setPassword(bCryptPasswordEncoder.encode(joinDTO.getPassword()));
-            }
-            if (!joinDTO.getName().isBlank()) {
-                user.setName(joinDTO.getName());
-            }
-            if (!joinDTO.getGender().isBlank()) {
-                user.setGender(joinDTO.getGender());
-            }
-            if (!joinDTO.getHeight().isBlank()) {
-                user.setHeight(joinDTO.getHeight());
-            }
-            if (!joinDTO.getWeight().isBlank()) {
-                user.setWeight(joinDTO.getWeight());
-            }
-            if (!joinDTO.getEmail().isBlank()) {
-                user.setEmail(joinDTO.getEmail());
+            // 비밀번호 업데이트
+            String password = joinDTO.getPassword();
+            if (password != null && !password.isBlank()) {
+                user.setPassword(bCryptPasswordEncoder.encode(password));
             }
 
+            // 이름 업데이트
+            String name = joinDTO.getName();
+            if (name != null && !name.isBlank()) {
+                user.setName(name);
+            }
+
+            // 성별 업데이트
+            String gender = joinDTO.getGender();
+            if (gender != null && !gender.isBlank()) {
+                user.setGender(gender);
+            }
+
+            // 키 업데이트
+            String height = joinDTO.getHeight();
+            if (height != null && !height.isBlank()) {
+                user.setHeight(height);
+            }
+
+            // 몸무게 업데이트
+            String weight = joinDTO.getWeight();
+            if (weight != null && !weight.isBlank()) {
+                user.setWeight(weight);
+            }
+
+            // 이메일 업데이트
+            String email = joinDTO.getEmail();
+            if (email != null && !email.isBlank()) {
+                user.setEmail(email);
+            }
             userRepository.save(user);
-
             return user.getId();
         } catch (Exception e) {
+            log.error("Error updating user: {}", e.getMessage());
             return  -1;
         }
     }
