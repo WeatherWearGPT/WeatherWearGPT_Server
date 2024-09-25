@@ -29,11 +29,13 @@ public class UserController {
 
     @PostMapping("/withdraw")
     public ResponseEntity<?> withdraw(@AuthUser UserEntity user) {
+        System.out.println("Withdraw request for ID: " + user.getId());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        userService.delete(user.getId());
+        Long userId = user.getId();
+        userService.delete(userId);
 
         return ResponseEntity.ok(user.getId() + " 회원님이 회원 탈퇴하였습니다.");
     }
