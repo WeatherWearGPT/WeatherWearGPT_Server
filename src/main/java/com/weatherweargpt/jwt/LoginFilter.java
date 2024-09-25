@@ -47,23 +47,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-
-        //UserDetailsS
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-//        String username = customUserDetails.getUsername();
-//
-//        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-//        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-//        GrantedAuthority auth = iterator.next();
-//
-//        String role = auth.getAuthority();
-
         UserEntity userEntity = userRepository.findByUsername(customUserDetails.getUsername());
-        String token = jwtUtil.createJwt(userEntity, 30*60*1000L);
+        if (userEntity == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
-
+        String token = jwtUtil.createJwt(userEntity, 30 * 60 * 1000L);
         response.addHeader("Authorization", "Bearer " + token);
+        response.setStatus(HttpServletResponse.SC_OK); // 상태 코드 설정
+
+        // 선택적으로 응답 본문에 사용자 정보 추가
+        // response.getWriter().write("{ \"userId\": " + userEntity.getId() + ", \"username\": \"" + userEntity.getUsername() + "\" }");
     }
 
     //로그인 실패시 실행하는 메소드

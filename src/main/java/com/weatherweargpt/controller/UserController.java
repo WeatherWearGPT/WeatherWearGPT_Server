@@ -2,19 +2,18 @@ package com.weatherweargpt.controller;
 
 import com.weatherweargpt.config.AuthUser;
 import com.weatherweargpt.dto.JoinDTO;
-import com.weatherweargpt.dto.UserDTO;
 import com.weatherweargpt.entity.UserEntity;
 import com.weatherweargpt.repository.UserRepository;
 import com.weatherweargpt.service.UserService;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
@@ -31,6 +30,7 @@ public class UserController {
     public ResponseEntity<?> withdraw(@AuthUser UserEntity user) {
         System.out.println("Withdraw request for ID: " + user.getId());
         if (user == null) {
+            System.out.println("user가 없음");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -40,5 +40,15 @@ public class UserController {
         return ResponseEntity.ok(user.getId() + " 회원님이 회원 탈퇴하였습니다.");
     }
 
-
+    @GetMapping
+    public ResponseEntity<?> getAll(@AuthUser UserEntity user) {
+        System.out.println(user.getUsername());
+        if(user == null) {
+            System.out.println("user가 없음");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long userId = user.getId();
+        JoinDTO joinDTO = userService.getAll(userId);
+        return ResponseEntity.ok(joinDTO);
+    }
 }

@@ -3,8 +3,6 @@ package com.weatherweargpt.jwt;
 import com.weatherweargpt.config.AuthUser;
 import com.weatherweargpt.entity.UserEntity;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -28,23 +26,34 @@ public class AuthUserResolver implements HandlerMethodArgumentResolver {
 	public boolean supportsParameter(MethodParameter parameter) {
 		boolean hasAnnotation = parameter.hasParameterAnnotation(AuthUser.class);
 		boolean isUserEntityType = UserEntity.class.isAssignableFrom(parameter.getParameterType());
-		
+
 		return hasAnnotation && isUserEntityType;
 	}
 
-	@Override // JwtFilter에서 모두 검증하므로, 검증 로직은 추가하지 않음
-    public UserEntity resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-								 NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-    	HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-    	String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-    	
-    	if(authorizationHeader == null)
-    		return null;
-    	
-    	String jwtToken = authorizationHeader.substring(7);
-    	UserEntity user = jwtUtil.getUser(jwtToken);
+	@Override
+	public UserEntity resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+									  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+		HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+		String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        return user;
-    }
+		System.out.println("Authorization Header: " + authorizationHeader);
+
+		if (authorizationHeader == null) {
+			return null; // 여기서 null이 반환되므로 withdraw 메서드에서 처리 필요
+		}
+
+		String jwtToken = authorizationHeader.substring(7);
+
+		System.out.println("JWT Token: " + jwtToken);
+
+		try {
+			UserEntity user = jwtUtil.getUser(jwtToken);
+			System.out.println(user.getUsername()+"AuthUser");
+			return user;
+		} catch (IllegalArgumentException e) {
+			log.error("JWT Token is invalid: {}", e.getMessage());
+			return null; // JWT가 유효하지 않을 때도 null 반환
+		}
+	}
 
 }

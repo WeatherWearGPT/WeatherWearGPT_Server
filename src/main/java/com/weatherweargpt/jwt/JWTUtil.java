@@ -22,17 +22,17 @@ public class JWTUtil {
     }
 
     public UserEntity getUser(String token) {
-        // JWT에서 username 추출
         String username = getUsername(token);
-        // username을 사용하여 UserEntity를 찾음
         UserEntity user = userRepository.findByUsername(username);
 
-        // user가 null인지 확인
+        System.out.println(user.getUsername()+"getUser");
+
+        // 유저를 찾을 수 없는 경우
         if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
 
-        // 추가로, 사용자 ID도 확인 (선택 사항)
+        // ID 체크
         if (user.getId() == null) {
             throw new IllegalArgumentException("User ID must not be null");
         }
@@ -58,7 +58,7 @@ public class JWTUtil {
     public String createJwt(UserEntity user, Long expiredMs) {
 
         return Jwts.builder()
-                .claim("Id", user.getId() )
+                .claim("id", user.getId() )
                 .claim("username", user.getUsername())
                 .claim("role", user.getRole())
                 .issuedAt(new Date(System.currentTimeMillis()))

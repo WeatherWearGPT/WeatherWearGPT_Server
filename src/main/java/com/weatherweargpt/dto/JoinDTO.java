@@ -23,6 +23,4 @@ public class JoinDTO {
     private String height;
 
     private String weight;
-
-    private String role;
 }

@@ -6,8 +6,12 @@ import com.weatherweargpt.entity.UserEntity;
 import com.weatherweargpt.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,12 +36,26 @@ public class UserService {
         data.setGender(gender);
         data.setHeight(height);
         data.setWeight(weight);
-        data.setRole("ROLE_ADMIN");
+        data.setRole("ROLE_USER");
 
         userRepository.save(data);
     }
 
-    public void delete(Long Id) {
-        userRepository.deleteById(Id);
+    public void delete(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public JoinDTO getAll(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found")); // 예외 발생
+
+        JoinDTO joinDTO = new JoinDTO();
+        joinDTO.setUsername(user.getUsername());
+        joinDTO.setName(user.getName());
+        joinDTO.setHeight(user.getHeight());
+        joinDTO.setWeight(user.getWeight());
+        joinDTO.setGender(user.getGender());
+        joinDTO.setEmail(user.getEmail());
+        return joinDTO;
     }
 }
