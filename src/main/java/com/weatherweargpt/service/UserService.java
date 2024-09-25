@@ -58,4 +58,33 @@ public class UserService {
         joinDTO.setEmail(user.getEmail());
         return joinDTO;
     }
+
+    public long updateUser(UserEntity user, JoinDTO joinDTO) {
+        try {
+            if (!joinDTO.getPassword().isBlank()) {
+                user.setPassword(bCryptPasswordEncoder.encode(joinDTO.getPassword()));
+            }
+            if (!joinDTO.getName().isBlank()) {
+                user.setName(joinDTO.getName());
+            }
+            if (!joinDTO.getGender().isBlank()) {
+                user.setGender(joinDTO.getGender());
+            }
+            if (!joinDTO.getHeight().isBlank()) {
+                user.setHeight(joinDTO.getHeight());
+            }
+            if (!joinDTO.getWeight().isBlank()) {
+                user.setWeight(joinDTO.getWeight());
+            }
+            if (!joinDTO.getEmail().isBlank()) {
+                user.setEmail(joinDTO.getEmail());
+            }
+
+            userRepository.save(user);
+
+            return user.getId();
+        } catch (Exception e) {
+            return  -1;
+        }
+    }
 }

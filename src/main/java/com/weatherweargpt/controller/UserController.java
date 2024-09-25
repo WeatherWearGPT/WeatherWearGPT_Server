@@ -40,8 +40,8 @@ public class UserController {
         return ResponseEntity.ok(user.getId() + " 회원님이 회원 탈퇴하였습니다.");
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAll(@AuthUser UserEntity user) {
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser(@AuthUser UserEntity user) {
         System.out.println(user.getUsername());
         if(user == null) {
             System.out.println("user가 없음");
@@ -50,5 +50,25 @@ public class UserController {
         Long userId = user.getId();
         JoinDTO joinDTO = userService.getAll(userId);
         return ResponseEntity.ok(joinDTO);
+    }
+
+    @PatchMapping("/user/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable(value = "id") Long userId, @AuthUser UserEntity user, @RequestPart(value = "data") JoinDTO joinDTO) {
+        if(user == null) {
+            System.out.println("user가 없음");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!user.getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("본인의 마이 페이지만 수정할 수 있습니다.");
+        }
+
+        long updatedUserId = userService.updateUser(user, joinDTO);
+
+        if (updatedUserId != user.getId() || updatedUserId == -1) {
+            return ResponseEntity.internalServerError().body("회원 정보 수정에 실패하였습니다.");
+        }
+
+        return ResponseEntity.ok(updatedUserId + ": 정보가 변경되었습니다.");
     }
 }
