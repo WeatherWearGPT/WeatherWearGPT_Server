@@ -37,7 +37,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         UserEntity userEntity = userRepository.findByUserName(customUserDetails.getUsername());
 
-        String token = jwtUtil.createJwt(userEntity, 30*60*1000L);
+        String token = jwtUtil.createJwt(userEntity, 60*60*1000L);
 
         response.addCookie(createCookie("Authorization", token));
 

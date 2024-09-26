@@ -28,7 +28,7 @@ public class UserController {
         return ResponseEntity.ok(joinDTO);
     }
 
-    @PostMapping("/withdraw")
+    @DeleteMapping("/withdraw")
     public ResponseEntity<?> withdraw(@AuthUser UserEntity user) {
         System.out.println("Withdraw request for ID: " + user.getUserId());
         if (user == null) {
