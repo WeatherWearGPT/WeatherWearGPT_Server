@@ -72,16 +72,4 @@ public class UserController {
 
         return ResponseEntity.ok(updatedUserId + ": 정보가 변경되었습니다.");
     }
-
-    @GetMapping
-    public ResponseEntity<?> getAll(@AuthUser UserEntity user) {
-        System.out.println(user.getUserName());
-        if (user == null) {
-            System.out.println("user가 없음");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        Long userId = user.getUserId();
-        JoinDTO joinDTO = userService.getAll(userId);
-        return ResponseEntity.ok(joinDTO);
-    }
 }
