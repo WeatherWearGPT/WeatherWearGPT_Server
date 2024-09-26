@@ -35,14 +35,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         //OAuth2User
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
 
-//        String username = customUserDetails.getUsername();
-//
-//        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-//        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-//        GrantedAuthority auth = iterator.next();
-//        String role = auth.getAuthority();
-
-        UserEntity userEntity = userRepository.findByUsername(customUserDetails.getUsername());
+        UserEntity userEntity = userRepository.findByUserName(customUserDetails.getUsername());
 
         String token = jwtUtil.createJwt(userEntity, 30*60*1000L);
 

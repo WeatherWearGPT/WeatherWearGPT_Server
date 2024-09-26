@@ -15,38 +15,31 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
 
     public CustomOAuth2UserService(UserRepository userRepository) {
-
         this.userRepository = userRepository;
     }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-
         OAuth2User oAuth2User = super.loadUser(userRequest);
         System.out.println(oAuth2User);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response oAuth2Response = null;
+
         if (registrationId.equals("naver")) {
-
             oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
-        }
-        else if (registrationId.equals("google")) {
-
+        } else if (registrationId.equals("google")) {
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
-        }
-        else {
-
+        } else {
             return null;
         }
 
-        String username = oAuth2Response.getProvider()+" "+oAuth2Response.getProviderId();
-        UserEntity existData = userRepository.findByUsername(username);
+        String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
+        UserEntity existData = userRepository.findByUserName(username);  // 수정된 부분: findByUsername() → findByUserName()
 
         if (existData == null) {
-
             UserEntity userEntity = new UserEntity();
-            userEntity.setUsername(username);
+            userEntity.setUserName(username);  // 수정된 부분: setUsername() → setUserName()
             userEntity.setEmail(oAuth2Response.getEmail());
             userEntity.setName(oAuth2Response.getName());
             userEntity.setRole("ROLE_USER");
@@ -54,23 +47,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             userRepository.save(userEntity);
 
             UserDTO userDTO = new UserDTO();
-            userDTO.setId(userEntity.getId());
-            userDTO.setUsername(username);
+            userDTO.setUserId(userEntity.getUserId());  // 수정된 부분: setId() → setUserId()
+            userDTO.setUserName(username);  // 수정된 부분: setUsername() → setUserName()
             userDTO.setName(oAuth2Response.getName());
             userDTO.setRole("ROLE_USER");
 
             return new CustomOAuth2User(userDTO);
-        }
-        else {
-
+        } else {
             existData.setEmail(oAuth2Response.getEmail());
             existData.setName(oAuth2Response.getName());
 
             userRepository.save(existData);
 
             UserDTO userDTO = new UserDTO();
-            userDTO.setId(existData.getId());
-            userDTO.setUsername(existData.getUsername());
+            userDTO.setUserId(existData.getUserId());  // 수정된 부분: setId() → setUserId()
+            userDTO.setUserName(existData.getUserName());  // 수정된 부분: setUsername() → setUserName()
             userDTO.setName(oAuth2Response.getName());
             userDTO.setRole(existData.getRole());
 
