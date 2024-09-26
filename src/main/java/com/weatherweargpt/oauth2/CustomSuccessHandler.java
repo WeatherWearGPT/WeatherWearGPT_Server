@@ -35,23 +35,26 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         //OAuth2User
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
 
-//        String username = customUserDetails.getUsername();
-//
-//        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-//        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-//        GrantedAuthority auth = iterator.next();
-//        String role = auth.getAuthority();
-        UserEntity userEntity = userRepository.findByUsername(customUserDetails.getUsername());
+        UserEntity userEntity = userRepository.findByUserName(customUserDetails.getUsername());
+
         String token = jwtUtil.createJwt(userEntity, 30*60*1000L);
 
         response.addCookie(createCookie("Authorization", token));
-        response.sendRedirect("http://localhost:3000/");
+
+        response.setHeader("Authorization", "Bearer " + token);
+
+        // 사용자가 데이터베이스에 존재하지 않으면 추가적인 회원가입 화면으로 리다이렉트
+        if (userEntity.getHeight() == null || userEntity.getWeight() == null) {
+            response.sendRedirect("http://localhost:3000/register"); // 회원가입 페이지 URL
+        } else {
+            response.sendRedirect("http://localhost:3000/home"); // 로그인 후 홈 화면 URL
+        }
     }
 
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(30*60*1000);
+        cookie.setMaxAge(30*60);
         //cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true);

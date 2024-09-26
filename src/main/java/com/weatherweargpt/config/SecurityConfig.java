@@ -67,7 +67,7 @@ public class SecurityConfig {
                     configuration.setExposedHeaders(Arrays.asList("Set-Cookie", "Authorization"));
 
                     return configuration;
-        }));
+                }));
 
         //csrf disable
         http

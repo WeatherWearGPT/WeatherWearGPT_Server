@@ -48,7 +48,8 @@ public class AuthUserResolver implements HandlerMethodArgumentResolver {
 
 		try {
 			UserEntity user = jwtUtil.getUser(jwtToken);
-			System.out.println(user.getUsername()+"AuthUser");
+
+			System.out.println(user.getUserName()+"AuthUser");
 			return user;
 		} catch (IllegalArgumentException e) {
 			log.error("JWT Token is invalid: {}", e.getMessage());

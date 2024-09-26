@@ -1,18 +1,16 @@
 package com.weatherweargpt.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class JoinDTO {
-    private String username;
 
-    private String password;
+    private String userName;  // UserEntity의 userName 필드에 맞춤
+
+    private String userPassword;  // UserEntity의 userPassword 필드에 맞춤
 
     private String name;
 
@@ -20,7 +18,9 @@ public class JoinDTO {
 
     private String gender;
 
-    private String height;
+    private Integer height;  // UserEntity와 동일하게 Integer 타입으로 변경
 
-    private String weight;
+    private Integer weight;  // UserEntity와 동일하게 Integer 타입으로 변경
+
+    //private String role;  // UserEntity의 role 필드 추가 (선택사항)
 }
