@@ -3,8 +3,11 @@ package com.weatherweargpt.controller;
 import com.weatherweargpt.config.AuthUser;
 import com.weatherweargpt.dto.JoinDTO;
 import com.weatherweargpt.entity.UserEntity;
+import com.weatherweargpt.jwt.JWTUtil;
 import com.weatherweargpt.repository.UserRepository;
 import com.weatherweargpt.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
+    private final JWTUtil jwtUtil;
+
     @PostMapping("/register")
     public ResponseEntity<?> join(JoinDTO joinDTO) {
         if (userRepository.existsByUsername(joinDTO.getUsername())) {
@@ -70,4 +75,5 @@ public class UserController {
 
         return ResponseEntity.ok(updatedUserId + ": 정보가 변경되었습니다.");
     }
+
 }
