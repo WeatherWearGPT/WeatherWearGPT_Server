@@ -58,7 +58,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             return;
         }
 
-        String token = jwtUtil.createJwt(userEntity, 30 * 60 * 1000L);
+        String token = jwtUtil.createJwt(userEntity, 60*60*1000L);
         response.addHeader("Authorization", "Bearer " + token);
         response.setStatus(HttpServletResponse.SC_OK);
         logger.info("Authentication successful for user: {}", customUserDetails.getUsername());
