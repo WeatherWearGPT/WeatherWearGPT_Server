@@ -83,6 +83,7 @@ public class WeatherController {
             // 날씨 데이터를 엔티티로 변환
             WeatherEntity weather = new WeatherEntity();
 
+            weather.setUserEntity(user);// 사용자 엔티티 설정
             weather.setWeatherText(currentWeather.getString("WeatherText")); // WeatherText는 단일 문자열
             weather.setTemperature(currentWeather.getJSONObject("Temperature").getJSONObject("Metric").getDouble("Value"));
             weather.setRelativeHumidity(currentWeather.getInt("RelativeHumidity"));
