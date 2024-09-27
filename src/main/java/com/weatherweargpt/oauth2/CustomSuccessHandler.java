@@ -9,13 +9,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
 
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -45,9 +42,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // 사용자가 데이터베이스에 존재하지 않으면 추가적인 회원가입 화면으로 리다이렉트
         if (userEntity.getHeight() == null || userEntity.getWeight() == null) {
-            response.sendRedirect("http://localhost:3000/register"); // 회원가입 페이지 URL
+            response.sendRedirect("http://localhost:3000/social-signup"); // 회원가입 페이지 URL
         } else {
-            response.sendRedirect("http://localhost:3000/home"); // 로그인 후 홈 화면 URL
+            response.sendRedirect("http://localhost:3000/chat"); // 로그인 후 홈 화면 URL
         }
     }
 

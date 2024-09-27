@@ -40,6 +40,7 @@ public class JWTFilter extends OncePerRequestFilter {
             }
         }
 
+
         // 토큰이 없거나 만료된 경우
         if (authorization == null || !authorization.startsWith("Bearer ") || jwtUtil.isExpired(authorization.substring(7))) {
             filterChain.doFilter(request, response);
