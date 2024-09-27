@@ -26,6 +26,14 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        // 헤더 검증 생략 API 목록
+        String uri = request.getRequestURI();
+        if (uri.equals("/") ||
+                uri.equals("/register") || uri.equals("/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authorization = request.getHeader("Authorization");
 
         // Authorization 헤더가 없으면 쿠키에서 시도
