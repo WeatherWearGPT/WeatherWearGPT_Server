@@ -51,6 +51,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         JoinDTO joinDTO = new JoinDTO();
+        joinDTO.setUserId(user.getUserId());
         joinDTO.setUserName(user.getUserName());
         joinDTO.setName(user.getName());
         joinDTO.setHeight(user.getHeight());

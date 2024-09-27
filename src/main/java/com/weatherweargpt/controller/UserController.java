@@ -28,6 +28,22 @@ public class UserController {
         return ResponseEntity.ok(joinDTO);
     }
 
+    @PostMapping("/register/social")
+    public ResponseEntity<?> join(@AuthUser UserEntity user, @RequestBody JoinDTO joinDTO) {
+        if(user == null) {
+            System.out.println("user가 없음");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        long updatedUserId = userService.updateUser(user, joinDTO);
+
+        if (updatedUserId != user.getUserId() || updatedUserId == -1) {
+            return ResponseEntity.internalServerError().body("회원 정보 등록에 실패하였습니다.");
+        }
+
+        return ResponseEntity.ok(updatedUserId + ": 정보가 등록되었습니다.");
+    }
+
     @DeleteMapping("/withdraw")
     public ResponseEntity<?> withdraw(@AuthUser UserEntity user) {
         System.out.println("Withdraw request for ID: " + user.getUserId());

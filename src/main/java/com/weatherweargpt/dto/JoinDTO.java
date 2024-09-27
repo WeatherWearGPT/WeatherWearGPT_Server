@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class JoinDTO {
+    private Long userId;
 
     private String userName;  // UserEntity의 userName 필드에 맞춤
 
