@@ -1,5 +1,6 @@
 package com.weatherweargpt.controller;
 
+import com.weatherweargpt.entity.UserEntity;
 import com.weatherweargpt.entity.WeatherEntity;
 import com.weatherweargpt.service.WeatherDataService;
 import com.weatherweargpt.service.WeatherService;
@@ -62,7 +63,7 @@ public class WeatherController {
     //현재 날씨와 5일간의 날씨 예보 데이터 저장
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveWeatherData(@RequestParam String location){
+    public ResponseEntity<?> saveWeatherData(@RequestParam String location, @RequestParam Long userId){
         try {
             // Location key 가져오기
             String locationKey = weatherDataService.getLocationKey(location);
@@ -73,9 +74,15 @@ public class WeatherController {
             // 날씨 예보 정보 가져오기
             JSONArray dailyForecast = weatherDataService.getDailyForecast(locationKey);
 
+            //userEntity 가져오기
+            UserEntity user = weatherService.findUserById(userId);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 userId를 가진 사용자를 찾을 수 없습니다");
+            }
+
             // 날씨 데이터를 엔티티로 변환
             WeatherEntity weather = new WeatherEntity();
-            weather.setUserId(1L); // 임의로 userId를 설정
+
             weather.setWeatherText(currentWeather.getString("WeatherText")); // WeatherText는 단일 문자열
             weather.setTemperature(currentWeather.getJSONObject("Temperature").getJSONObject("Metric").getDouble("Value"));
             weather.setRelativeHumidity(currentWeather.getInt("RelativeHumidity"));

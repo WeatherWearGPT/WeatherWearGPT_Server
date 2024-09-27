@@ -14,9 +14,14 @@ import java.time.LocalDateTime;
 public class WeatherEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "weather_id")
     private long weatherId;
 
-    private long userId;
+    //외래키 설정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "UserId", foreignKey = @ForeignKey(name = "FK_User_Weather"))
+    private UserEntity userEntity;
+
     private String weatherText;
     private double temperature;
     private int relativeHumidity;
