@@ -22,11 +22,20 @@ public class WeatherEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "UserId", foreignKey = @ForeignKey(name = "FK_User_Weather"))
     private UserEntity userEntity;
 
+    @Column(name = "weather_text")
     private String weatherText;
+
     private double temperature;
+
+    @Column(name = "relative_humidity")
     private int relativeHumidity;
+
     private double wind;
+
+    @Column(name = "has_precipitation")
     private boolean hasPrecipitation;
+
+    @Column(name = "weather_date")
     private LocalDateTime weatherDate;
 
 }
