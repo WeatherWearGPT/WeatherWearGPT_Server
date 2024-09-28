@@ -3,6 +3,8 @@ package com.weatherweargpt.service;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -12,12 +14,16 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class WeatherDataService {
 
+    private static final Logger logger = LoggerFactory.getLogger(WeatherDataService.class);
+
     @Value("${accuweather.api.key}")
     private String accuweatherApiKey;
 
+    @Value("${google.api.key}")
+    private String googleApiKey;
+
     private final RestTemplate restTemplate;
 
-    // LocationKey를 가져오는 메서드
     public String getLocationKey(String location) {
         String url = "http://dataservice.accuweather.com/locations/v1/cities/search?apikey=" + accuweatherApiKey + "&q=" + location;
 
@@ -26,18 +32,78 @@ public class WeatherDataService {
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             JSONArray jsonArray = new JSONArray(response.getBody());
             if (jsonArray.length() > 0) {
-                // 첫 번째 결과에서 locationKey 가져오기
                 JSONObject firstResult = jsonArray.getJSONObject(0);
                 return firstResult.getString("Key");
             }
         }
 
+        double[] coordinates = getLatitudeLongitude(location);
+        if (coordinates != null) {
+            return getLocationKeyByGeoposition(coordinates[0], coordinates[1]);
+        }
+
         throw new RuntimeException("Location key를 가져오지 못했습니다.");
     }
 
-    //현재 날씨 데이터 가져오는 메서드
+    public String getLocationKeyByGeoposition(double latitude, double longitude) {
+        String url = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey=" + accuweatherApiKey + "&q=" + latitude + "," + longitude;
+
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            JSONObject jsonObject = new JSONObject(response.getBody());
+            if (jsonObject.has("Key")) {
+                return jsonObject.getString("Key");
+            }
+        }
+
+        throw new RuntimeException("Geoposition을 통한 Location Key를 가져오지 못했습니다.");
+    }
+
+    public double[] getLatitudeLongitude(String location) {
+        try {
+            String geocodeUrl = String.format(
+                    "https://maps.googleapis.com/maps/api/geocode/json?address=%s&key=%s",
+                    location, googleApiKey
+            );
+
+            logger.debug("Google Maps Geocoding API 호출 URL: {}", geocodeUrl);
+
+            ResponseEntity<String> response = restTemplate.getForEntity(geocodeUrl, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                JSONObject jsonResponse = new JSONObject(response.getBody());
+
+                if ("OK".equals(jsonResponse.getString("status"))) {
+                    JSONArray results = jsonResponse.getJSONArray("results");
+                    if (results.length() > 0) {
+                        JSONObject locationObject = results.getJSONObject(0)
+                                .getJSONObject("geometry")
+                                .getJSONObject("location");
+                        double latitude = locationObject.getDouble("lat");
+                        double longitude = locationObject.getDouble("lng");
+
+                        logger.info("Google Maps에서 '{}'의 위도: {}, 경도: {} 조회 성공", location, latitude, longitude);
+                        return new double[]{latitude, longitude};
+                    } else {
+                        logger.warn("Google Maps에서 '{}'에 대한 결과를 찾지 못했습니다.", location);
+                    }
+                } else {
+                    logger.error("Geocoding API 호출 실패. 상태: {}, 에러 메시지: {}", jsonResponse.getString("status"), jsonResponse.optString("error_message"));
+                }
+            } else {
+                logger.error("Geocoding API 요청 실패. 상태 코드: {}, 응답 내용: {}", response.getStatusCode(), response.getBody());
+            }
+        } catch (Exception e) {
+            logger.error("Google Maps Geocoding API 호출 중 오류가 발생했습니다. 지역명: {}, 오류: {}", location, e.getMessage());
+        }
+
+        logger.warn("해당 지역에 대한 좌표를 찾을 수 없습니다. 지역명: {}", location);
+        return null;
+    }
+
     public JSONObject getCurrentWeather(String locationKey) {
-        String url = "http://dataservice.accuweather.com/currentconditions/v1/" + locationKey + "?apikey=" + accuweatherApiKey+ "&details=true";
+        String url = "http://dataservice.accuweather.com/currentconditions/v1/" + locationKey + "?apikey=" + accuweatherApiKey + "&details=true";
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -47,7 +113,6 @@ public class WeatherDataService {
         throw new RuntimeException("Current weather data 불러오기 실패");
     }
 
-    //날씨 예보 데이터 가져오는 메서드
     public JSONArray getDailyForecast(String locationKey) {
         String url = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/" + locationKey + "?apikey=" + accuweatherApiKey;
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
@@ -58,5 +123,4 @@ public class WeatherDataService {
         }
         throw new RuntimeException("Weather forecast data 불러오기 실패");
     }
-
 }

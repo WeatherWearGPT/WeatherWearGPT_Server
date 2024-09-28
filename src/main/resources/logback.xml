@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Console logging setup (can disable by commenting this out) -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset> <!-- Ensure UTF-8 encoding for console -->
+        </encoder>
+    </appender>
+
+    <!-- File logging setup -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/weatherweargpt.log</file> <!-- Log file path -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/weatherweargpt.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory> <!-- Keep logs for 30 days -->
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset> <!-- Ensure UTF-8 encoding for file logs -->
+        </encoder>
+    </appender>
+
+    <!-- Root logger configuration -->
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/> <!-- Add this line to include file appender -->
+    </root>
+
+    <!-- Specific logger for GPTService class -->
+    <logger name="com.weatherweargpt.service.GPTService" level="debug" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+
+</configuration>
