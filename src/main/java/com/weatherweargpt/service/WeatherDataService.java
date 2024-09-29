@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 @Service
 @RequiredArgsConstructor
 public class WeatherDataService {
@@ -114,7 +117,7 @@ public class WeatherDataService {
     }
 
     public JSONArray getDailyForecast(String locationKey) {
-        String url = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/" + locationKey + "?apikey=" + accuweatherApiKey;
+        String url = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/" + locationKey + "?apikey=" + accuweatherApiKey + "&details=true";
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -122,5 +125,27 @@ public class WeatherDataService {
             return forecast.getJSONArray("DailyForecasts");
         }
         throw new RuntimeException("Weather forecast data 불러오기 실패");
+    }
+
+    public JSONObject getWeatherForDate(String locationKey, LocalDate targetDate) {
+        String url = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/" + locationKey + "?apikey=" + accuweatherApiKey + "&details=true";
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            JSONObject forecast = new JSONObject(response.getBody());
+            JSONArray dailyForecasts = forecast.getJSONArray("DailyForecasts");
+
+            for (int i = 0; i < dailyForecasts.length(); i++) {
+                JSONObject dailyForecast = dailyForecasts.getJSONObject(i);
+                String forecastDate = dailyForecast.getString("Date");
+                LocalDate forecastLocalDate = LocalDate.parse(forecastDate, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+                if (forecastLocalDate.equals(targetDate)) {
+                    logger.info("Found weather data for date: {}", targetDate);
+                    return dailyForecast;
+                }
+            }
+        }
+        throw new RuntimeException("Weather data for the specified date could not be retrieved");
     }
 }

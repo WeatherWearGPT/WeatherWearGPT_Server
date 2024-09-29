@@ -5,12 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DialogueRepository extends JpaRepository<Dialogue, Long> {
-    // User 대신 UserEntity를 사용
-    List<Dialogue> findByUserEntityUserIdOrderByConversationDateDesc(Long userId);  // 수정된 부분: findByUserUserId → findByUserEntityUserId
+    List<Dialogue> findByUserEntityUserIdOrderByConversationDateDesc(Long userId);
 
-    // 가장 최근의 대화를 가져오는 메서드 (목적지 확인용)
-    Dialogue findTopByUserEntityUserIdOrderByConversationDateDesc(Long userId);  // 수정된 부분: findTopByUserUserId → findTopByUserEntityUserId
+    Dialogue findTopByUserEntityUserIdOrderByConversationDateDesc(Long userId);
+
+    Optional<Dialogue> findTopByUserEntityUserIdAndDestinationIsNotNullOrderByConversationDateDesc(Long userId);
 }

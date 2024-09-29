@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
 @RestController
@@ -23,10 +23,6 @@ public class WeatherController {
     private final WeatherDataService weatherDataService;
     private final WeatherService weatherService;
 
-    /**
-     * 지역명으로 Location Key 가져오기 (텍스트 기반 검색)
-     * 입력된 지역명을 사용하여 AccuWeather의 텍스트 검색 API를 통해 Location Key를 가져옵니다.
-     */
     @GetMapping("/location")
     public ResponseEntity<?> getLocationKey(@RequestParam String location) {
         try {
@@ -37,10 +33,6 @@ public class WeatherController {
         }
     }
 
-    /**
-     * 위도/경도 기반 Location Key 가져오기
-     * 사용자가 위도와 경도를 입력하면, 해당 위치에 대한 Location Key를 AccuWeather의 Geoposition API를 사용하여 가져옵니다.
-     */
     @GetMapping("/location/geoposition")
     public ResponseEntity<?> getLocationKeyByGeoposition(@RequestParam double latitude, @RequestParam double longitude) {
         try {
@@ -51,58 +43,50 @@ public class WeatherController {
         }
     }
 
-    /**
-     * 현재 날씨와 5일간의 날씨 예보 데이터 저장
-     * 입력된 지역명(location)을 기반으로 Location Key를 가져오고, 해당 Location Key를 사용하여 날씨 정보를 가져온 후 DB에 저장합니다.
-     */
     @PostMapping("/save")
-    public ResponseEntity<?> saveWeatherData(@RequestParam String location, @RequestParam Long userId) {
+    public ResponseEntity<?> saveWeatherData(@RequestParam String location, @RequestParam Long userId, @RequestParam(required = false) String dateTime) {
         try {
-            // 1. Location key 가져오기
             String locationKey = weatherDataService.getLocationKey(location);
 
-            // 2. 현재 날씨 정보 가져오기
-            JSONObject currentWeather = weatherDataService.getCurrentWeather(locationKey);
+            LocalDate targetDate = (dateTime != null) ? LocalDate.parse(dateTime) : LocalDate.now();
+            JSONObject weatherData = weatherDataService.getWeatherForDate(locationKey, targetDate);
 
-            // 3. 5일간의 날씨 예보 정보 가져오기
-            JSONArray dailyForecast = weatherDataService.getDailyForecast(locationKey);
-
-            // 4. userEntity 가져오기
             UserEntity user = weatherService.findUserById(userId);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 userId를 가진 사용자를 찾을 수 없습니다");
             }
 
-            // 5. 날씨 데이터를 엔티티로 변환하여 저장
             WeatherEntity weather = new WeatherEntity();
-            weather.setUserEntity(user); // 사용자 엔티티 설정
-            weather.setWeatherText(currentWeather.getString("WeatherText")); // WeatherText는 단일 문자열
-            weather.setTemperature(currentWeather.getJSONObject("Temperature").getJSONObject("Metric").getDouble("Value"));
-            weather.setRelativeHumidity(currentWeather.getInt("RelativeHumidity"));
-            weather.setWind(currentWeather.getJSONObject("Wind").getJSONObject("Speed").getJSONObject("Metric").getDouble("Value"));
-            weather.setHasPrecipitation(currentWeather.getBoolean("HasPrecipitation"));
+            weather.setUserEntity(user);
+            weather.setWeatherText(weatherData.getJSONObject("Day").getString("IconPhrase"));
+            weather.setTemperature(weatherData.getJSONObject("Temperature").getJSONObject("Maximum").getDouble("Value"));
 
-            // AccuWeather에서 관측된 날짜 시간 정보 사용 (OffsetDateTime으로 변환)
-            String observationDateTimeStr = currentWeather.getString("LocalObservationDateTime");
-            OffsetDateTime offsetDateTime = OffsetDateTime.parse(observationDateTimeStr, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            // RelativeHumidity 처리 수정
+            JSONObject dayForecast = weatherData.getJSONObject("Day");
+            if (dayForecast.has("RelativeHumidity")) {
+                Object humidityValue = dayForecast.get("RelativeHumidity");
+                if (humidityValue instanceof Integer) {
+                    weather.setRelativeHumidity((Integer) humidityValue);
+                } else if (humidityValue instanceof Double) {
+                    weather.setRelativeHumidity(((Double) humidityValue).intValue());
+                } else {
+                    weather.setRelativeHumidity(0); // 기본값 설정 또는 다른 처리 방법 선택
+                }
+            } else {
+                weather.setRelativeHumidity(0); // RelativeHumidity 필드가 없는 경우 기본값 설정
+            }
 
-            // OffsetDateTime을 LocalDateTime으로 변환하여 저장
-            LocalDateTime observationDateTime = offsetDateTime.toLocalDateTime();
-            weather.setWeatherDate(observationDateTime);
+            weather.setWind(weatherData.getJSONObject("Day").getJSONObject("Wind").getJSONObject("Speed").getDouble("Value"));
+            weather.setHasPrecipitation(weatherData.getJSONObject("Day").getBoolean("HasPrecipitation"));
+            weather.setWeatherDate(targetDate.atStartOfDay());
 
-            // DB에 데이터 저장
             WeatherEntity savedWeather = weatherService.saveWeather(weather);
-
-            // 저장된 Weather 객체 반환
             return ResponseEntity.ok(savedWeather);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("오류가 발생했습니다: " + e.getMessage());
         }
     }
 
-    /**
-     * 특정 Location Key에 대한 현재 날씨 정보 가져오기
-     */
     @GetMapping("/current")
     public ResponseEntity<?> getCurrentWeather(@RequestParam String locationKey) {
         try {
@@ -113,9 +97,6 @@ public class WeatherController {
         }
     }
 
-    /**
-     * 특정 Location Key에 대한 5일간의 날씨 예보 정보 가져오기
-     */
     @GetMapping("/forecast")
     public ResponseEntity<?> getDailyForecast(@RequestParam String locationKey) {
         try {
@@ -126,4 +107,3 @@ public class WeatherController {
         }
     }
 }
-
