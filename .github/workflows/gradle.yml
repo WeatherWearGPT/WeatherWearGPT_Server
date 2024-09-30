@@ -56,7 +56,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: ${{ secrets.DOCKER_USERNAME }}/weatherweargptserver
-          tags: be-${{ secrets.REGISTER_VERSION }}
+          tags: latest
           registry: docker.io
           dockerfile: Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
