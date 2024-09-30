@@ -243,12 +243,16 @@ public class GPTService {
 
         return String.format(
                 "사용자는 %s에 %s로 갑니다. 그곳의 날씨는 %s이고, 최고 기온은 %.1f°C, 습도는 %d%%, 바람 속도는 %.1f km/h입니다. " +
-                        "강수 여부는 %s입니다. 적절한 옷차림을 추천해 주세요. 사용자는 %s이며, 키는 %d cm, 몸무게는 %d kg입니다.",
+                        "강수 여부는 %s입니다. 사용자는 %s이며, 키는 %d cm, 몸무게는 %d kg입니다. " +
+                        "옷차림을 추천해 주세요. 색상 조합과 계절에 어울리는 코디를 고려해 주세요. " +
+                        "상의, 하의, 신발, 모자와 같은 주요 아이템뿐만 아니라 가방, 시계, 안경, 목걸이와 같은 악세사리도 포함해 주세요. " +
+                        "가능하다면, 실제 존재하는 브랜드 (예: 나이키, 아디다스, 유니클로, 자라, 구찌 등) 의 제품을 추천해 주세요.",
                 targetDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")),
                 destination, weather.getWeatherText(), temperatureInCelsius, weather.getRelativeHumidity(),
                 weather.getWind(), weather.isHasPrecipitation() ? "있음" : "없음",
                 user.getGender(), user.getHeight(), user.getWeight()
         );
+
     }
 
     private String extractDestinationUsingGPT(String userResponse) {
