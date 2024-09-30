@@ -63,17 +63,23 @@ public class UserService {
 
     public long updateUser(UserEntity user, JoinDTO joinDTO) {
         try {
-            // 비밀번호 업데이트
-            String password = joinDTO.getUserPassword();
-            if (password != null && !password.isBlank()) {
-                user.setUserPassword(bCryptPasswordEncoder.encode(password));
-            }
-
-            // 이름 업데이트
-            String name = joinDTO.getName();
-            if (name != null && !name.isBlank()) {
-                user.setName(name);
-            }
+//            // 비밀번호 업데이트
+//            String password = joinDTO.getUserPassword();
+//            if (password != null && !password.isBlank()) {
+//                user.setUserPassword(bCryptPasswordEncoder.encode(password));
+//            }
+//
+//            // 이름 업데이트
+//            String name = joinDTO.getName();
+//            if (name != null && !name.isBlank()) {
+//                user.setName(name);
+//            }
+//
+//            // 이메일 업데이트
+//            String email = joinDTO.getEmail();
+//            if (email != null && !email.isBlank()) {
+//                user.setEmail(email);
+//            }
 
             // 성별 업데이트
             String gender = joinDTO.getGender();
@@ -93,11 +99,6 @@ public class UserService {
                 user.setWeight(weight);
             }
 
-            // 이메일 업데이트
-            String email = joinDTO.getEmail();
-            if (email != null && !email.isBlank()) {
-                user.setEmail(email);
-            }
             userRepository.save(user);
             return user.getUserId();
         } catch (Exception e) {
