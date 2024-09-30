@@ -41,15 +41,18 @@ public class GPTService {
     private final DialogueRepository dialogueRepository;
     private final WeatherDataService weatherDataService;
     private final WeatherService weatherService;
+    private final ImageGenerationService imageGenerationService;
 
     @Autowired
     public GPTService(RestTemplate restTemplate, UserRepository userRepository, DialogueRepository dialogueRepository,
-                      WeatherDataService weatherDataService, WeatherService weatherService) {
+                      WeatherDataService weatherDataService, WeatherService weatherService,
+                      ImageGenerationService imageGenerationService) {
         this.restTemplate = restTemplate;
         this.userRepository = userRepository;
         this.dialogueRepository = dialogueRepository;
         this.weatherDataService = weatherDataService;
         this.weatherService = weatherService;
+        this.imageGenerationService = imageGenerationService;
         logger.info("GPTService initialized with API URL: {}", apiUrl);
     }
 
@@ -135,7 +138,23 @@ public class GPTService {
 
         if (extractedDate != null && !extractedDate.isEmpty()) {
             String destination = getLastKnownDestination(user.getUserId());
-            return generateOutfitPrompt(user, destination, extractedDate);
+            String outfitRecommendation = generateOutfitPrompt(user, destination, extractedDate);
+
+            latestDialogue.setUserResponse(outfitRecommendation);
+            dialogueRepository.save(latestDialogue);
+
+            // 이미지 생성 및 URL 가져오기
+            String imageUrl = imageGenerationService.generateAndSaveOutfitImage(latestDialogue, outfitRecommendation);
+
+            String response = outfitRecommendation;
+            if (imageUrl != null) {
+                response += "\n\n옷차림 이미지: " + imageUrl;
+            } else {
+                response += "\n\n(죄송합니다. 이미지 생성에 실패했습니다.)";
+            }
+            response += "\n\n추가 옷 추천을 원하시나요?";
+
+            return response;
         } else {
             logger.warn("Failed to extract date from: {}", userResponse);
             return "죄송합니다, 날짜를 이해하지 못했습니다. 다시 한 번 명확하게 입력해주세요. (예: 2024년 10월 02일(YYYY년 MM월 DD일) 계속 진행하시려면 아무 응답이나 해주세요.)";
@@ -202,12 +221,13 @@ public class GPTService {
                 return "죄송합니다, 옷 추천을 생성할 수 없습니다. 다시 시도해 주세요.";
             }
 
-            return outfitRecommendation + "\n\n추가 옷 추천을 원하시나요?";
+            return outfitRecommendation;
         } catch (Exception e) {
             logger.error("날씨 데이터를 사용한 옷 추천 프롬프트 생성 중 오류 발생", e);
             return "죄송합니다, 옷 추천 생성 중 오류가 발생했습니다: " + e.getMessage();
         }
     }
+
     private WeatherEntity createWeatherEntity(UserEntity user, JSONObject weatherData, LocalDate targetDate) {
         WeatherEntity weatherEntity = new WeatherEntity();
         weatherEntity.setUserEntity(user);
@@ -252,7 +272,6 @@ public class GPTService {
                 weather.getWind(), weather.isHasPrecipitation() ? "있음" : "없음",
                 user.getGender(), user.getHeight(), user.getWeight()
         );
-
     }
 
     private String extractDestinationUsingGPT(String userResponse) {
