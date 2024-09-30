@@ -125,7 +125,7 @@ public class GPTService {
             return "며칠에 갈 예정인가요? (예: 2024년 10월 02일(YYYY년 MM월 DD일))";
         } else {
             logger.warn("Failed to extract destination from: {}", userResponse);
-            return "죄송합니다, 목적지를 이해하지 못했습니다. 다시 한 번 명확하게 입력해주세요.";
+            return "죄송합니다, 목적지를 이해하지 못했습니다. 다시 한 번 명확하게 입력해주세요. 계속 진행하시려면 아무 응답이나 해주세요.";
         }
     }
 
@@ -138,7 +138,7 @@ public class GPTService {
             return generateOutfitPrompt(user, destination, extractedDate);
         } else {
             logger.warn("Failed to extract date from: {}", userResponse);
-            return "죄송합니다, 날짜를 이해하지 못했습니다. 다시 한 번 명확하게 입력해주세요. (예: 2024년 10월 02일(YYYY년 MM월 DD일))";
+            return "죄송합니다, 날짜를 이해하지 못했습니다. 다시 한 번 명확하게 입력해주세요. (예: 2024년 10월 02일(YYYY년 MM월 DD일) 계속 진행하시려면 아무 응답이나 해주세요.)";
         }
     }
 
