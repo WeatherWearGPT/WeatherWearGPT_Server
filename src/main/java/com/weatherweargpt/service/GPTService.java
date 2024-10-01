@@ -181,6 +181,7 @@ public class GPTService {
 
     private String generateOutfitPrompt(UserEntity user, String destination, String date) {
         logger.debug("목적지와 날짜에 따른 옷 추천 프롬프트 생성 중: {}, {}", destination, date);
+        System.out.println(destination);
         try {
             if (destination == null || destination.isEmpty()) {
                 logger.error("목적지 정보가 없습니다.");
@@ -199,6 +200,7 @@ public class GPTService {
             JSONObject weatherData;
             try {
                 weatherData = weatherDataService.getWeatherForDate(locationKey, targetDate);
+                System.out.println(weatherData);
             } catch (RuntimeException e) {
                 logger.error("날씨 데이터 조회 중 오류 발생: {}", e.getMessage());
                 return "죄송합니다, 해당 날짜의 날씨 정보를 가져오는 데 실패했습니다. 다른 날짜를 입력해 주세요.";
@@ -277,6 +279,7 @@ public class GPTService {
     private String extractDestinationUsingGPT(String userResponse) {
         logger.info("Calling GPT API to extract destination. User response: {}", userResponse);
         String prompt = createDestinationExtractionPrompt(userResponse);
+        System.out.println(prompt);
 
         Map<String, Object> requestBody = createGPTRequestBody(
                 "당신은 문장에서 지명을 추출하는 어시스턴트입니다. 오직 지명만 반환하세요.",
@@ -287,9 +290,11 @@ public class GPTService {
             logger.debug("Sending destination extraction request to GPT API: {}", prompt);
             Map response = callGPTAPI(requestBody);
             logger.debug("Received raw response from GPT API: {}", response);
+            System.out.println(response);
 
             String content = extractContentFromGPTResponse(response);
             logger.info("Destination extracted from GPT API: {}", content);
+            System.out.println(content);
 
             if (!content.isEmpty()) {
                 return validateAndReturnDestination(content);
@@ -414,6 +419,7 @@ public class GPTService {
         try {
             String locationKey = weatherDataService.getLocationKey(destination);
             logger.info("LocationKey for extracted destination: {}", locationKey);
+            System.out.println(locationKey);
             return destination;
         } catch (RuntimeException e) {
             logger.warn("Cannot find locationKey for the extracted location: {}", destination);
