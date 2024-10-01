@@ -48,6 +48,8 @@ public class ImageGenerationService {
     private final RestTemplate restTemplate;
     private final OutfitImageRepository outfitImageRepository;
 
+
+
     private static final Map<String, String> CATEGORY_MAPPING = new HashMap<>() {{
         put("상의", "Top");
         put("아우터", "Outer");
@@ -64,6 +66,7 @@ public class ImageGenerationService {
     public ImageGenerationService(RestTemplate restTemplate, OutfitImageRepository outfitImageRepository) {
         this.restTemplate = restTemplate;
         this.outfitImageRepository = outfitImageRepository;
+        logger.info("ImageGenerationService initialized successfully.");
     }
 
     public String generateAndSaveOutfitImage(Dialogue dialogue, String outfitRecommendation) {
@@ -241,4 +244,5 @@ public class ImageGenerationService {
         }
         return null;
     }
+
 }
