@@ -8,7 +8,7 @@ build/
 !**/src/test/**/build/
 
 ###secure.properties###
-/src/main/resources/secure.properties
+# /src/main/resources/secure.properties
 
 ### STS ###
 .apt_generated
