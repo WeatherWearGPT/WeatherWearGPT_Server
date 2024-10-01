@@ -75,23 +75,31 @@ public class ImageGenerationService {
             String imageUrl = generateOutfitImage(prompt);
 
             if (imageUrl != null) {
-                OutfitImageEntity outfitImage = new OutfitImageEntity();
-                outfitImage.setUserEntity(dialogue.getUserEntity());
-                outfitImage.setDialogue(dialogue);
-                outfitImage.setImageUrl(imageUrl);
-                outfitImage.setGenerationPrompt(prompt);
+                // 이미지 파일이 실제로 존재하는지 확인
+                String imagePath = imageUploadPath + imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                if (Files.exists(Paths.get(imagePath))) {
+                    logger.info("Image file confirmed at path: {}", imagePath);
 
-                outfitImageRepository.save(outfitImage);
-                logger.info("Outfit image generated and saved for dialogue ID: {}", dialogue.getDialogId());
-                return imageUrl;
+                    // OutfitImageEntity를 데이터베이스에 저장
+                    OutfitImageEntity outfitImage = new OutfitImageEntity();
+                    outfitImage.setUserEntity(dialogue.getUserEntity());
+                    outfitImage.setDialogue(dialogue);
+                    outfitImage.setImageUrl(imageUrl);
+                    outfitImage.setGenerationPrompt(prompt);
+
+                    outfitImageRepository.save(outfitImage);
+                    logger.info("Outfit image generated and saved successfully for dialogue ID: {}. File saved at: {}", dialogue.getDialogId(), imageUrl);
+                    return imageUrl;
+                } else {
+                    logger.error("Image file not found after supposed successful generation at path: {}", imagePath);
+                }
             } else {
                 logger.error("Failed to generate image for dialogue ID: {}", dialogue.getDialogId());
-                return null;
             }
         } catch (Exception e) {
             logger.error("Error generating outfit image for dialogue ID: {}", dialogue.getDialogId(), e);
-            return null;
         }
+        return null;
     }
 
     private String createPromptFromDialogue(Dialogue dialogue, String outfitRecommendation) {
@@ -226,7 +234,7 @@ public class ImageGenerationService {
             Files.createDirectories(Paths.get(imageUploadPath));
             Files.write(Paths.get(filePath), imageBytes);
 
-            // 접근 가능한 URL 반환
+            logger.info("Successfully saved image at: {}", filePath);
             return imageBaseUrl + fileName;
         } catch (IOException e) {
             logger.error("Failed to save base64 image to file", e);
