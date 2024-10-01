@@ -52,7 +52,6 @@ jobs:
             -v /home/ubuntu/docker-volume/env:/home/ubuntu/docker-volume/env \
             --env-file /home/ubuntu/docker-volume/env/secure.properties \
             -e ACCUWEATHER_API_KEY=${{ secrets.ACCUWEATHER_API_KEY }} \
-            -e SPRING_CONFIG_LOCATION=/home/ubuntu/docker-volume/env/.env \
             -e DB_HOST='mysql-svc' \
             -e DB_PORT='3306' \
             -e DB_DATABASE='weather_db' \
