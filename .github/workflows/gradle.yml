@@ -49,7 +49,7 @@ jobs:
           script: |
             docker rm -f weather-svc || true
             docker run --name weather-svc -d -p 8080:8080 --net msanet --net-alias=weather-svc \
-            -e ACCUWEATHER_API_KEY=${ACCUWEATHER_API_KEY} \
+            -e ACCUWEATHER.API.KEY=${ACCUWEATHER_API_KEY} \
             -e DB_HOST='mysql-svc' \
             -e DB_PORT='3306' \
             -e DB_DATABASE='weather_db' \
