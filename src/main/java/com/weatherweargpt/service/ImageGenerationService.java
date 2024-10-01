@@ -42,7 +42,7 @@ public class ImageGenerationService {
     @Value("${app.image.upload.path:/home/ubuntu/docker-volume/img/}")
     private String imageUploadPath;
 
-    @Value("${app.image.base.url:http://43.202.86.72/images/}")
+    @Value("${app.image.base.url:http://43.202.86.72:8080/images/}")
     private String imageBaseUrl;
 
     private final RestTemplate restTemplate;
