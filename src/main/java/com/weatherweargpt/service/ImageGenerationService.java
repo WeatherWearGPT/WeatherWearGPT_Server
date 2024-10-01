@@ -239,7 +239,6 @@ public class ImageGenerationService {
         } catch (IOException e) {
             logger.error("Failed to save base64 image to file", e);
         }
-
         return null;
     }
 }
