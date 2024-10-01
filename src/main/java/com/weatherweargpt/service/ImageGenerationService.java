@@ -39,6 +39,12 @@ public class ImageGenerationService {
     @Value("${openai.api.url}")
     private String openaiApiUrl;
 
+    @Value("${app.image.upload.path:/home/ubuntu/docker-volume/img/}")
+    private String imageUploadPath;
+
+    @Value("${app.image.base.url:http://43.202.86.72/images/}")
+    private String imageBaseUrl;
+
     private final RestTemplate restTemplate;
     private final OutfitImageRepository outfitImageRepository;
 
@@ -208,19 +214,20 @@ public class ImageGenerationService {
         return null;
     }
 
-    // 이미지를 Spring Boot의 static 디렉토리에 저장하고 접근 가능한 URL 반환
     private String saveBase64Image(String base64Image) {
         try {
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
 
             // 고유한 파일명 생성 (UUID 사용)
             String fileName = UUID.randomUUID().toString() + ".png";
-            String filePath = "src/main/resources/static/images/" + fileName; // 정적 디렉토리에 저장
+            String filePath = imageUploadPath + fileName;
 
+            // 디렉토리가 없으면 생성
+            Files.createDirectories(Paths.get(imageUploadPath));
             Files.write(Paths.get(filePath), imageBytes);
 
             // 접근 가능한 URL 반환
-            return "http://localhost:8080/images/" + fileName;
+            return imageBaseUrl + fileName;
         } catch (IOException e) {
             logger.error("Failed to save base64 image to file", e);
         }
