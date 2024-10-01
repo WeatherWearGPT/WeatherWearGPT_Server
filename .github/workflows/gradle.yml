@@ -21,17 +21,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-#      - name: Grant execute permission to Gradle wrapper
-#        run: chmod +x ./gradlew
-#
-#      - name: Build with Gradle Wrapper
-#        run: ./gradlew build -x test
+      - name: Grant execute permission to Gradle wrapper
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build -x test
 
       - name: Build & push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: ${{ secrets.DOCKER_USERNAME }}/weatherweargptserver
-          tags: 0.1
+          tags: 0.2
           registry: docker.io
           dockerfile: Dockerfile
           directory: .
@@ -55,4 +55,4 @@ jobs:
             -e DB_DATABASE='weather_db' \
             -e DB_USERNAME='weather' \
             -e DB_PASSWORD='weather' \
-            ${{ secrets.DOCKER_USERNAME }}/weatherweargptserver:0.1
+            ${{ secrets.DOCKER_USERNAME }}/weatherweargptserver:0.2
