@@ -54,4 +54,4 @@ jobs:
             -e DB_DATABASE='weather_db' \
             -e DB_USERNAME='weather' \
             -e DB_PASSWORD='weather' \
-            ${{ secrets.DOCKER_USERNAME }}/weatherweargptserver:latest
+            ${{ secrets.DOCKER_USERNAME }}/weatherweargptserver:0.1
