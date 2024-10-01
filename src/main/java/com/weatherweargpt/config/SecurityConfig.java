@@ -99,18 +99,14 @@ public class SecurityConfig {
 
         //경로별 인가 작업
         http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("*").permitAll()
-                        .anyRequest().authenticated());
-//                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-//                        // /weather 경로는 인증 없이 허용 -> 테스트하기 위해 weather만 인증없이 허용
-//                        .requestMatchers("/weather/**").permitAll()
-//                        // 그 외 경로는 인증 필요
-//                        .anyRequest().authenticated()
-//                )
-//                .oauth2Login(oauth2 -> oauth2
-//                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-//                );
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("*").permitAll() // 모든 요청 허용
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization
+                                .baseUri("/oauth2/authorization"))
+                        .defaultSuccessUrl("http://localhost:3000/social-signup", true)
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)));
 
         //세션 설정 : STATELESS
         http
