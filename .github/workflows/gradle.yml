@@ -24,9 +24,6 @@ jobs:
       - name: Grant execute permission to Gradle wrapper
         run: chmod +x ./gradlew
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-
       - name: Build with Gradle Wrapper
         run: ./gradlew build -x test
 
@@ -37,6 +34,7 @@ jobs:
           tags: 0.1
           registry: docker.io
           dockerfile: Dockerfile
+          context: . # 현재 디렉토리에서 빌드
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
