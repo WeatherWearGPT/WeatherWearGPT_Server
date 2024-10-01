@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import java.io.IOException;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -61,6 +62,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String token = jwtUtil.createJwt(userEntity, 60*60*1000L);
         response.addHeader("Authorization", "Bearer " + token);
         response.setStatus(HttpServletResponse.SC_OK);
+        try {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"userId\": " + userEntity.getUserId() + "}");
+        } catch (IOException e) {
+            logger.error("Error writing response", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
         logger.info("Authentication successful for user: {}", customUserDetails.getUsername());
     }
 

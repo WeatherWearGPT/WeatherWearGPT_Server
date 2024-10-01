@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class WeatherWearGptApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(WeatherWearGptApplication.class, args);
     }
