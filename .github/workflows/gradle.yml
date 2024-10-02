@@ -31,12 +31,13 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: ${{ secrets.DOCKER_USERNAME }}/weatherweargptserver
-          tags: 0.2
+          tags: 0.5
           registry: docker.io
           dockerfile: Dockerfile
           directory: .
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          platform: linux/amd64
 
       - name: EC2 Docker Run
         uses: appleboy/ssh-action@master
@@ -46,7 +47,7 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             docker rm -f weather-svc || true
-            docker run --name weather-svc -d -p 8080:8080 --net msanet --net-alias=weather-svc \
+            docker run --platform linux/amd64 --name weather-svc -d -p 8080:8080 --net msanet --net-alias=weather-svc \
             -v /home/ubuntu/docker-volume/env:/home/ubuntu/docker-volume/env \
             --env-file /home/ubuntu/docker-volume/env/secure.properties \
             -e ACCUWEATHER_API_KEY=${{ secrets.ACCUWEATHER_API_KEY }} \
@@ -55,4 +56,4 @@ jobs:
             -e DB_DATABASE='weather_db' \
             -e DB_USERNAME='weather' \
             -e DB_PASSWORD='weather' \
-            ${{ secrets.DOCKER_USERNAME }}/weatherweargptserver:0.2
+            ${{ secrets.DOCKER_USERNAME }}/weatherweargptserver:0.5
